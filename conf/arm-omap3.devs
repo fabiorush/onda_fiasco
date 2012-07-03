@@ -34,7 +34,7 @@ hw-root
     new-res Mmio(0x49054000 .. 0x49054fff);
     new-res Mmio(0x49056000 .. 0x49056fff);
     new-res Mmio(0x49058000 .. 0x49058fff);
-	
+    new-res Irq(33);
   }
 
   lcd => new Device()
@@ -55,6 +55,7 @@ hw-root
     new-res Mmio(0x49034000 .. 0x49034fff);
     new-res Mmio(0x49040000 .. 0x49040fff);
     new-res Irq(39);
+    new-res Irq(45);
   }
 }
 
