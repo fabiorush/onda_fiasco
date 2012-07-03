@@ -56,6 +56,17 @@ hw-root
     new-res Mmio(0x49040000 .. 0x49040fff);
     new-res Irq(39);
   }
+
+  usb => new Device()
+  {
+    .hid = "USB";
+    new-res Mmio(0x49062000 .. 0x49062840);
+    new-res Mmio(0x49064000 .. 0x49064fff);
+    new-res Mmio(0x49040000 .. 0x49040fff);
+    new-res Irq(76);
+    new-res Irq(77);
+    new-res Irq(78);
+  }
 }
 
 onda => new System_bus()
@@ -69,4 +80,5 @@ l4linux => new System_bus()
 {
   sys => wrap(hw-root.sys);
   gpio => wrap(hw-root.gpio);
+  usb => wrap(hw-root.usb);
 }

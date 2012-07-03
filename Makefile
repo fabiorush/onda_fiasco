@@ -23,5 +23,7 @@ l4re-snapshot-2011081207/.extract:
 	ln -s $(PWD)/pkg/client/app_comm.c l4re-snapshot-2011081207/src/l4linux/drivers/char/onda.c
 	echo "obj-y     += onda.o" >> l4re-snapshot-2011081207/src/l4linux/drivers/char/Makefile
 	make -C l4re-snapshot-2011081207/ setup
+	make -C l4re-snapshot-2011081207/src/l4linux O=/home/flus/Mestrado/onda_fiasco/l4re-snapshot-2011081207/obj/l4linux/arm-mp/ menuconfig
+	make -C l4re-snapshot-2011081207/src/l4linux O=/home/flus/Mestrado/onda_fiasco/l4re-snapshot-2011081207/obj/l4linux/arm-up/ menuconfig
 	touch $@
 
