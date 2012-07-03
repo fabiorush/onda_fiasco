@@ -4,5 +4,6 @@ REQUIRES_LIBS = libio libirq
 
 TARGET		= onda
 SRC_C		= main.c
+#SRC_C		+= server.cc
 
 include $(L4DIR)/mk/prog.mk

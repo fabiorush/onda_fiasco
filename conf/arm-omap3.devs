@@ -62,6 +62,7 @@ onda => new System_bus()
 {
   sys => wrap(hw-root.sys);
   gpio => wrap(hw-root.gpio);
+  gpt => wrap(hw-root.gpt);
 }
 
 l4linux => new System_bus()

@@ -1,13 +1,3 @@
-//static /* const */ DEVICE_ATTR(pincount, 0644,
-//                onda_pincount_show, onda_pincount_store);
-
-/*static struct class gpio_class = {
-        .name =         "onda",
-        .owner =        THIS_MODULE,
-
-        .class_attrs =  gpio_class_attrs,
-};*/
-
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -19,12 +9,20 @@
 #include <linux/slab.h>
 #include <linux/cdev.h>
 #include <linux/kdev_t.h>
+// #include <l4/sys/err.h>
+// #include <l4/sys/types.h>
+// #include <l4/re/env>
+// #include <l4/re/util/cap_alloc>
+//#include <l4/cxx/ipc_stream>
+#include <l4/re/c/util/cap_alloc.h>
+#include <l4/re/c/namespace.h>
+#include <l4/sys/ipc.h>
+
 
 
 //#define MAJOR_NUM 200
 //#define DEVICE_NAME "cdev"
 
-int pincount = 100;
 int interval = 10;
 int pwm_enable = 0;
 
@@ -63,9 +61,41 @@ static ssize_t onda_pincount_show(struct device *dev,
                 struct device_attribute *attr, char *buf)
 {
 	ssize_t status;
+	l4_msgtag_t tag;
+	l4_umword_t label;
+	l4_cap_idx_t comm_cap;
+	int pincount = 0;
+	int ipc_error;
 
 	mutex_lock(&sysfs_lock);
 	
+	//l4_utcb_mr()->mr[0] = 0;
+	
+	comm_cap = l4re_get_env_cap("comm");
+
+	/* Get a free capability slot for the comm capability */
+	if (l4_is_invalid_cap(comm_cap)) {
+		printk("Did not find an comm\n");
+		mutex_unlock(&sysfs_lock);
+		return 0;
+    }
+
+	/* To an L4 IPC call, i.e. send a message to thread2 and wait for a
+	* reply from thread2. The '1' in the msgtag denotes that we want to
+	* transfer one word of our message registers (i.e. MR0). No timeout. */
+	tag = l4_ipc_call(comm_cap, l4_utcb(), l4_msgtag(1, 0, 0, 0), L4_IPC_NEVER);
+	
+	/* Check for IPC error, if yes, print out the IPC error code, if not,
+	* print the received result. */
+	ipc_error = l4_ipc_error(tag, l4_utcb());
+	if (ipc_error) {
+		printk("IPC error: %x\n", ipc_error);
+		return 0;
+	} else {
+		pincount = (int)(l4_utcb_mr()->mr[0]);
+		printk("Received: %d\n", pincount);
+	}
+
 	status = sprintf(buf, "%d\n", pincount);
 	
 	mutex_unlock(&sysfs_lock);
@@ -125,8 +155,8 @@ static int onda_init(void)
 	if(status < 0)
 	printk("Registering char driver failed with status = %d\n", status);
 	else*/
-	printk("Hello World\n");
-
+	printk("Hello World2\n\n");
+	
 	status = class_register(&onda_drv);
 	if(status < 0)
 		printk("Registering Class Failed\n");
@@ -142,5 +172,6 @@ static void onda_exit(void)
 }
 
 module_init(onda_init);
+//fs_initcall(onda_init);
 module_exit(onda_exit);
 MODULE_LICENSE("GPL");

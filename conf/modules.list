@@ -46,10 +46,10 @@ modaddr 0x01100000
 
 entry L4Linux ARM
 kernel fiasco -serial_esc
-roottask moe rom/l4lx.cfg
+roottask moe rom/l4onda.cfg
 module l4re
 module ned
-module l4lx.cfg
+module l4onda.cfg
 module io
 module libio-io.so
 module libirq.so
