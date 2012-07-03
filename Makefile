@@ -12,8 +12,8 @@ l4re-snapshot-2011081207/obj/l4/arm-beagleboard/images/bootstrap_L4Linux_ARM.uim
 l4re-snapshot-2011081207/obj/l4/arm-beagleboard/ext-pkg/home/flus/Mestrado/onda_fiasco/pkg/onda/OBJ-arm_armv6-l4f/onda: l4re-snapshot-2011081207/.built pkg/onda/main.cc
 	make -C pkg/onda/ O=$(PWD)/l4re-snapshot-2011081207/obj/l4/arm-beagleboard/
 
-l4re-snapshot-2011081207/.built: l4re-snapshot-2011081207/.extract
-	make -j2 -C l4re-snapshot-2011081207/
+l4re-snapshot-2011081207/.built: l4re-snapshot-2011081207/.extract pkg/client/app_comm.c
+	make -C l4re-snapshot-2011081207/
 	touch $@
 
 l4re-snapshot-2011081207/.extract:

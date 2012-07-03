@@ -5,29 +5,14 @@
 #include <l4/sys/ipc.h>
 #include <stdio.h>
 #include <string.h>
-#include "omap3530.h"
-/*#include <l4/re/c/util/cap_alloc.h>
-#include <l4/re/c/namespace.h>
-#include <l4/sys/ipc.h>
-#include <l4/sys/ipc.h>
-#include <l4/sys/capability>
-#include <l4/sys/typeinfo_svr>
-#include <l4/sys/ipc_gate>
-#include <l4/sys/factory>
-#include <l4/cxx/ipc_stream>
-#include <l4/cxx/thread>
-#include <l4/re/env>
-#include <l4/re/util/cap_alloc>*/
 #include <l4/re/env>
 #include <l4/re/util/cap_alloc>
 #include <l4/re/util/object_registry>
 #include <l4/cxx/ipc_server>
+#include "omap3530.h"
 
 #define in32(a)		*((unsigned int *)(a))
 #define out32(a,b)	*((unsigned int *)(a)) = (b)
-
-//L4_EXTERNAL_FUNC(l4x_srv_init);
-//L4_EXTERNAL_FUNC(l4x_srv_setup_recv);
 
 int pincount = 100;
 int interval = 10;
@@ -36,7 +21,6 @@ int pwm_enable = 0;
 l4_addr_t gpio5, sys, gpt3;
 
 int t = 0;
-//static L4::Cap<L4::Kobject> _rcv_cap;
 
 static char page_to_map[L4_PAGESIZE] __attribute__((aligned(L4_PAGESIZE)));
 
@@ -54,30 +38,45 @@ Smap_server::dispatch(l4_umword_t, L4::Ipc::Iostream &ios)
   l4_msgtag_t t;
   ios >> t;
 
-  puts("\n\nRecebi algo!\n\n");
+  puts("Recebi algo!\n");
   // We're only talking the Map_example protocol
   //if (t.label() != Protocol::Map_example)
     //return -L4_EBADPROTO;
 
-  L4::Opcode opcode;
+  int opcode;
   ios >> opcode;
+  
+  printf("op: %d\n", opcode);
 
-  //switch (opcode)
-    {
-    //case Opcode::Do_map:
-      l4_addr_t snd_base;
-      ios >> snd_base;
-      // put something into the page to read it out at the other side
-      //snprintf(page_to_map, sizeof(page_to_map), "Hello from the server!");
-      printf("Sending to client\n");
-      // send page
-      ios << 10;/*L4::Ipc::Snd_fpage::mem((l4_addr_t)page_to_map, L4_PAGESHIFT,
-                                L4_FPAGE_RO, snd_base);*/
-      return L4_EOK;
-    /*default:
-      return -L4_ENOSYS;*/
+  switch (opcode) {
+    case 0x55:
+		printf("Eh um pincount read\n");
+		ios << pincount;
+		return L4_EOK;
+	case 0x56:
+		printf("Eh um interval read\n");
+		ios << interval;
+		return L4_EOK;
+	case 0x66:
+		printf("Eh um interval write\n");
+		ios >> interval;
+		ios << interval;
+		return L4_EOK;
+	case 0x57:
+		printf("Eh um pwm_enable read\n");
+		ios << pwm_enable;
+		return L4_EOK;
+	case 0x67:
+		printf("Eh um pwm_enable write\n");
+		ios >> pwm_enable;
+		ios << pwm_enable;
+		return L4_EOK;
+	default:
+		printf("ao sei o q eh\n");
+		return -L4_ENOSYS;
     }
 }
+
 static void isr_handler(void *data)
 {
 	(void)data;
@@ -110,9 +109,6 @@ int
 main(void)
 {
 	l4irq_t *irqdesc;
-	l4_msgtag_t tag;
-	l4_umword_t label;
-	l4_cap_idx_t comm_cap;
 	//l4_utcb_t *utcb;
 	
 	//l4x_srv_init();
