@@ -14,7 +14,7 @@
 #define in32(a)		*((unsigned int *)(a))
 #define out32(a,b)	*((unsigned int *)(a)) = (b)
 
-int pincount = 100;
+int pincount = 0;
 int interval = 10;
 int pwm_enable = 0;
 
@@ -75,7 +75,7 @@ static void gpio_isr_handler(void *data)
 	(void)data;
 	if (in32(gpio5 + OMAP2420_GPIO_DATAIN) & (1 << 10)) {
 		//out32(gpt3 + OMAP3530_GPT_TCLR, 0);
-		out32(gpt9 + OMAP3530_GPT_TCLR, 0);
+		out32(gpt9 + OMAP3530_GPT_TCLR, (1<<12) | (1<<10) | (1<<7));
 		//out32(gpt3 + OMAP3530_GPT_TISR, 2);
 		out32(gpt9 + OMAP3530_GPT_TISR, 2);
 		
@@ -87,7 +87,7 @@ static void gpio_isr_handler(void *data)
 		
 		/* setting the initial timer counter value
 		 * cada tick é 80ns */
-		unsigned int t = 0xffffffff - ((interval*1000)/79);
+		unsigned int t = 0xffffffff - ((interval*1000)/77);
 		
 		out32(gpt9 + OMAP3530_GPT_TLDR, t);
 		out32(gpt9 + OMAP3530_GPT_TCRR, t);
@@ -99,6 +99,7 @@ static void gpio_isr_handler(void *data)
 		//out32(gpt3 + OMAP3530_GPT_TCLR, 3);
 
 		t = 0;
+		pincount++;
 	}
 	out32(gpio5 + OMAP2420_GPIO_IRQSTATUS1, 1 << 10);
 }
@@ -155,11 +156,14 @@ main(void)
 		return 1;
 	}
 
-	/* selecting pullup and mode 4 function - GPIO 139
-	 * selecting mode 4 function - GPIO 138 */
-	//l = (in32(sys + 0x168) & 0 ) | (((1<<3) | 4) << 16);
+	/* selecting mode 4 function - GPIO 139
+	 * selecting pullup and mode 4 function - GPIO 138 */
+#define SYS_CONF	((4 << 16) | ((1 << 8) | (1<<3) | 4))
+#define SYS_MASK	~(0x10F010F)
+	l = (in32(sys + 0x168) &  SYS_MASK) | SYS_CONF;
 	//l = (in32(sys + 0x168) & ~(7<<16) ) | (4 << 16);
-	out32(sys + 0x168, ((1<<3 | 4) << 16) | (1<<3) | 4);
+	//out32(sys + 0x168, ((1<<3 | 4) << 16) | (1<<3) | 4);
+	out32(sys + 0x168, l);
 
 	/* setting mode 2 - PWM */
 	l = (in32(sys + 0x174) & ~7 ) | 2;
@@ -181,6 +185,11 @@ main(void)
 
 	/* enabling the interrupt */
 	out32(gpt9 + OMAP3530_GPT_TIER, 2); //comentar se PWM
+	
+	/* configuring PWM */
+	out32(gpt9 + OMAP3530_GPT_TCLR, (1<<12) | (1<<10) | (1<<7)); //-- PWM
+
+	out32(gpio5 + OMAP2420_GPIO_SETDATAOUT, (1 << 11));
 	
 	/* Wait for client requests */
 	printf("Ready to anwser\n");
