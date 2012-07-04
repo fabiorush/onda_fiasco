@@ -6,7 +6,7 @@ export GCC_PATH_PREFIX PATH
 
 all: l4re-snapshot-2011081207/obj/l4/arm-beagleboard/images/bootstrap_L4Linux_ARM.uimage
 
-l4re-snapshot-2011081207/obj/l4/arm-beagleboard/images/bootstrap_L4Linux_ARM.uimage: l4re-snapshot-2011081207/obj/l4/arm-beagleboard/ext-pkg/home/flus/Mestrado/onda_fiasco/pkg/onda/OBJ-arm_armv6-l4f/onda l4re-snapshot-2011081207/.built
+l4re-snapshot-2011081207/obj/l4/arm-beagleboard/images/bootstrap_L4Linux_ARM.uimage: l4re-snapshot-2011081207/obj/l4/arm-beagleboard/ext-pkg/home/flus/Mestrado/onda_fiasco/pkg/onda/OBJ-arm_armv6-l4f/onda l4re-snapshot-2011081207/.built conf/arm-omap3.devs
 	make -C l4re-snapshot-2011081207/obj/l4/arm-beagleboard uimage E="L4Linux ARM"
 
 l4re-snapshot-2011081207/obj/l4/arm-beagleboard/ext-pkg/home/flus/Mestrado/onda_fiasco/pkg/onda/OBJ-arm_armv6-l4f/onda: l4re-snapshot-2011081207/.built pkg/onda/main.cc
