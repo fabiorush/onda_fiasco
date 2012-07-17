@@ -55,6 +55,7 @@ module libio-io.so
 module libirq.so
 module arm-omap3.devs
 module vmlinuz.arm
-module ramdisk-arm.rd
+#module ramdisk-arm.rd
+module rootfs.squashfs
 module onda
 

@@ -15,7 +15,7 @@
 #define out32(a,b)	*((unsigned int *)(a)) = (b)
 
 int pincount = 0;
-int interval = 10;
+int interval = 20;
 int pwm_enable = 0;
 
 l4_addr_t gpio5, sys, gpt3, gpt9;
@@ -74,9 +74,7 @@ static void gpio_isr_handler(void *data)
 {
 	(void)data;
 	if (in32(gpio5 + OMAP2420_GPIO_DATAIN) & (1 << 10)) {
-		//out32(gpt3 + OMAP3530_GPT_TCLR, 0);
 		out32(gpt9 + OMAP3530_GPT_TCLR, (1<<12) | (1<<10) | (1<<7));
-		//out32(gpt3 + OMAP3530_GPT_TISR, 2);
 		out32(gpt9 + OMAP3530_GPT_TISR, 2);
 		
 		/* set the pin 139 */
@@ -84,6 +82,9 @@ static void gpio_isr_handler(void *data)
 	} else {
 		/* clear the pin 139*/
 		out32(gpio5 + OMAP2420_GPIO_CLEARDATAOUT, (1 << 11));
+
+		t = 0;
+		pincount++;
 		
 		/* setting the initial timer counter value
 		 * cada tick é 80ns */
@@ -91,15 +92,9 @@ static void gpio_isr_handler(void *data)
 		
 		out32(gpt9 + OMAP3530_GPT_TLDR, t);
 		out32(gpt9 + OMAP3530_GPT_TCRR, t);
-		//out32(gpt3 + OMAP3530_GPT_TLDR, t);
-		//out32(gpt3 + OMAP3530_GPT_TCRR, t);
 
 		/* starting timer with PWM */
 		out32(gpt9 + OMAP3530_GPT_TCLR, 3 | (1<<12) | (1<<10)); //-- PWM
-		//out32(gpt3 + OMAP3530_GPT_TCLR, 3);
-
-		t = 0;
-		pincount++;
 	}
 	out32(gpio5 + OMAP2420_GPIO_IRQSTATUS1, 1 << 10);
 }
